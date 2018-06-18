@@ -190,6 +190,7 @@ export default class Video extends Component {
         type: source.type || '',
         mainVer: source.mainVer || 0,
         patchVer: source.patchVer || 0,
+        oauthToken: source.oauthToken
       },
       onVideoLoadStart: this._onLoadStart,
       onVideoLoad: this._onLoad,
@@ -265,7 +266,8 @@ Video.propTypes = {
   /* Wrapper component */
   source: PropTypes.oneOfType([
     PropTypes.shape({
-      uri: PropTypes.string
+      uri: PropTypes.string,
+      oauthToken: PropTypes.string
     }),
     // Opaque type returned by require('./video.mp4')
     PropTypes.number

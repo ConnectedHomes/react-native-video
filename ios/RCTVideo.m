@@ -321,6 +321,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   bool isAsset = [RCTConvert BOOL:[source objectForKey:@"isAsset"]];
   NSString *uri = [source objectForKey:@"uri"];
   NSString *type = [source objectForKey:@"type"];
+  NSString *oauthToken = [source objectForKey:@"oauthToken"];
 
   NSURL *url = (isNetwork || isAsset) ?
     [NSURL URLWithString:uri] :
@@ -328,7 +329,8 @@ static NSString *const timedMetadata = @"timedMetadata";
 
   if (isNetwork) {
     NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
-    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies}];
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies,
+                                                                  @"AVURLAssetHTTPHeaderFieldsKey": @{@"X-JWT-TOKEN": oauthToken}}];
     return [AVPlayerItem playerItemWithAsset:asset];
   }
   else if (isAsset) {
