@@ -4,6 +4,7 @@
 #import "UIView+FindUIViewController.h"
 #import "RCTVideoPlayerViewController.h"
 #import "RCTVideoPlayerViewControllerDelegate.h"
+#import "RCTAssetResourceLoaderDelegate.h"
 
 @class RCTEventDispatcher;
 

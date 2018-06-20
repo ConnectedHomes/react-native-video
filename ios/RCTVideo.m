@@ -48,6 +48,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   NSString * _resizeMode;
   BOOL _fullscreenPlayerPresented;
   UIViewController * _presentingViewController;
+  RCTAssetResourceLoaderDelegate *assetResourceLoaderDelegate;
 }
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher
@@ -69,6 +70,7 @@ static NSString *const timedMetadata = @"timedMetadata";
     _playInBackground = false;
     _playWhenInactive = false;
     _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
+    assetResourceLoaderDelegate = [RCTAssetResourceLoaderDelegate new];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
@@ -331,6 +333,8 @@ static NSString *const timedMetadata = @"timedMetadata";
     NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies,
                                                                   @"AVURLAssetHTTPHeaderFieldsKey": @{@"X-JWT-TOKEN": oauthToken}}];
+    assetResourceLoaderDelegate.accessToken = oauthToken;
+    [asset.resourceLoader setDelegate:assetResourceLoaderDelegate queue:nil];
     return [AVPlayerItem playerItemWithAsset:asset];
   }
   else if (isAsset) {
