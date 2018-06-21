@@ -30,7 +30,6 @@ static NSString *const httpsScheme = @"https";
 
 @implementation RCTAssetResourceLoaderDelegate
 
-
 - (instancetype)init
 {
     self = [super init];
@@ -39,7 +38,6 @@ static NSString *const httpsScheme = @"https";
     }
     return self;
 }
-
 
 #pragma mark - AVAssetResourceLoaderDelegate
 
@@ -81,7 +79,6 @@ static NSString *const httpsScheme = @"https";
 }
 
 -(NSURL*)changeSchemeOf:(AVAssetResourceLoadingRequest*)loadingRequest from:(NSString*)from to:(NSString*)to {
-    
     NSString *urlString = loadingRequest.request.URL.absoluteString;
     urlString = [urlString stringByReplacingOccurrencesOfString:from withString:to];
     
@@ -89,7 +86,6 @@ static NSString *const httpsScheme = @"https";
 }
 
 -(void)getDataFrom:(NSURL*)url withRequest:(AVAssetResourceLoadingRequest*)loadingRequest modifyBlock:(NSData* (^)(NSData* data))modifyBlock {
-    
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
     // Add the jw token header.
@@ -147,7 +143,6 @@ static NSString *const httpsScheme = @"https";
  *  3) Send a request, modify the received m3u8 file - change child playlist schemes.
  *  4) Create a reponse with the new URL and report success.
 **/
-
 -(void)handleMasterPlaylistRequest:(AVAssetResourceLoadingRequest*)loadingRequest {
     NSURL *url = [self generateMasterPlaylistUrl:loadingRequest];
     if (url) {
@@ -190,7 +185,6 @@ static NSString *const httpsScheme = @"https";
  *  3) Send a request, modify the received m3u8 file - change AES key and ts files schemes.
  *  4) Create a reponse with the new URL and report success.
 **/
-
 -(void)handleChildPlaylistRequest:(AVAssetResourceLoadingRequest*)loadingRequest {
     NSURL *url = [self generateChildPlaylistUrl:loadingRequest];
     if (url) {
