@@ -334,7 +334,7 @@ static NSString *const timedMetadata = @"timedMetadata";
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies,
                                                                   @"AVURLAssetHTTPHeaderFieldsKey": @{@"X-JWT-TOKEN": oauthToken}}];
     assetResourceLoaderDelegate.accessToken = oauthToken;
-    [asset.resourceLoader setDelegate:assetResourceLoaderDelegate queue:nil];
+    [asset.resourceLoader setDelegate:assetResourceLoaderDelegate queue:assetResourceLoaderDelegate.delegateQueue];
     return [AVPlayerItem playerItemWithAsset:asset];
   }
   else if (isAsset) {

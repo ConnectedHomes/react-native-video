@@ -24,10 +24,24 @@ static NSString *const httpsScheme = @"https";
 @interface RCTAssetResourceLoaderDelegate ()
 
 @property (assign, nonatomic) NSInteger errorCode;
+@property (strong, nonatomic) dispatch_queue_t delegateQueue;
 
 @end
 
 @implementation RCTAssetResourceLoaderDelegate
+
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.delegateQueue = dispatch_queue_create("AssetResourceLoaderDelegateQueue", NULL);
+    }
+    return self;
+}
+
+
+#pragma mark - AVAssetResourceLoaderDelegate
 
 - (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest {
     
@@ -54,6 +68,8 @@ static NSString *const httpsScheme = @"https";
     
     return NO;
 }
+
+#pragma mark - Working with Data
 
 -(void)reportErrorWithCode:(RCTResponseErrorCode)errorCode forRequest:(AVAssetResourceLoadingRequest*)loadingRequest {
     self.errorCode = errorCode;
