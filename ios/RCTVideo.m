@@ -324,6 +324,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   NSString *uri = [source objectForKey:@"uri"];
   NSString *type = [source objectForKey:@"type"];
   NSString *oauthToken = [source objectForKey:@"oauthToken"];
+  NSString *oauthTokenKey = [source objectForKey:@"oauthTokenKey"];
 
   NSURL *url = (isNetwork || isAsset) ?
     [NSURL URLWithString:uri] :
@@ -332,8 +333,9 @@ static NSString *const timedMetadata = @"timedMetadata";
   if (isNetwork) {
     NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies,
-                                                                  @"AVURLAssetHTTPHeaderFieldsKey": @{@"X-JWT-TOKEN": oauthToken}}];
+                                                                  @"AVURLAssetHTTPHeaderFieldsKey": @{oauthTokenKey: oauthToken}}];
     assetResourceLoaderDelegate.accessToken = oauthToken;
+    assetResourceLoaderDelegate.accessTokenHeaderKey = oauthTokenKey;
     [asset.resourceLoader setDelegate:assetResourceLoaderDelegate queue:assetResourceLoaderDelegate.delegateQueue];
     return [AVPlayerItem playerItemWithAsset:asset];
   }

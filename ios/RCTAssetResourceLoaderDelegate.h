@@ -30,5 +30,6 @@
 
 @interface RCTAssetResourceLoaderDelegate : NSObject <AVAssetResourceLoaderDelegate>
 @property (strong, nonatomic) NSString *accessToken;
+@property (strong, nonatomic) NSString *accessTokenHeaderKey;
 @property (readonly, nonatomic) dispatch_queue_t delegateQueue;
 @end

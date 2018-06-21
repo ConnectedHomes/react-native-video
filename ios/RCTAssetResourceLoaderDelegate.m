@@ -89,7 +89,7 @@ static NSString *const httpsScheme = @"https";
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     
     // Add the jw token header.
-    [request setValue:self.accessToken forKey: @"X-JWT-TOKEN"];
+    [request setValue:self.accessToken forKey: self.accessTokenHeaderKey];
     
     __weak typeof(self) weakSelf = self;
     NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithRequest:request
