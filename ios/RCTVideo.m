@@ -48,6 +48,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   NSString * _resizeMode;
   BOOL _fullscreenPlayerPresented;
   UIViewController * _presentingViewController;
+  RCTAssetResourceLoaderDelegate *assetResourceLoaderDelegate;
 }
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher
@@ -69,6 +70,7 @@ static NSString *const timedMetadata = @"timedMetadata";
     _playInBackground = false;
     _playWhenInactive = false;
     _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
+    assetResourceLoaderDelegate = [RCTAssetResourceLoaderDelegate new];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
@@ -322,6 +324,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   NSString *uri = [source objectForKey:@"uri"];
   NSString *type = [source objectForKey:@"type"];
   NSString *oauthToken = [source objectForKey:@"oauthToken"];
+  NSString *oauthTokenKey = [source objectForKey:@"oauthTokenKey"];
 
   NSURL *url = (isNetwork || isAsset) ?
     [NSURL URLWithString:uri] :
@@ -329,8 +332,10 @@ static NSString *const timedMetadata = @"timedMetadata";
 
   if (isNetwork) {
     NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
-    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies,
-                                                                  @"AVURLAssetHTTPHeaderFieldsKey": @{@"X-JWT-TOKEN": oauthToken}}];
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies}];
+    assetResourceLoaderDelegate.accessToken = oauthToken;
+    assetResourceLoaderDelegate.accessTokenHeaderKey = oauthTokenKey;
+    [asset.resourceLoader setDelegate:assetResourceLoaderDelegate queue:assetResourceLoaderDelegate.delegateQueue];
     return [AVPlayerItem playerItemWithAsset:asset];
   }
   else if (isAsset) {
