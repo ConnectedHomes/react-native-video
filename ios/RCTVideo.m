@@ -332,8 +332,7 @@ static NSString *const timedMetadata = @"timedMetadata";
 
   if (isNetwork) {
     NSArray *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
-    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies,
-                                                                  @"AVURLAssetHTTPHeaderFieldsKey": @{oauthTokenKey: oauthToken}}];
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:@{AVURLAssetHTTPCookiesKey : cookies}];
     assetResourceLoaderDelegate.accessToken = oauthToken;
     assetResourceLoaderDelegate.accessTokenHeaderKey = oauthTokenKey;
     [asset.resourceLoader setDelegate:assetResourceLoaderDelegate queue:assetResourceLoaderDelegate.delegateQueue];
