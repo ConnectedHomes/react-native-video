@@ -327,7 +327,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   NSString *oauthTokenKey = [source objectForKey:@"oauthTokenKey"];
 
   NSURL *url = (isNetwork || isAsset) ?
-    [NSURL URLWithString:uri] :
+    [NSURL URLWithString:[uri stringByReplacingOccurrencesOfString:@"https" withString:@"mplp"]] :
     [[NSURL alloc] initFileURLWithPath:[[NSBundle mainBundle] pathForResource:uri ofType:type]];
 
   if (isNetwork) {
