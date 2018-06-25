@@ -86,10 +86,10 @@ static NSString *const httpsScheme = @"https";
 }
 
 -(void)getDataFrom:(NSURL*)url withRequest:(AVAssetResourceLoadingRequest*)loadingRequest modifyBlock:(NSData* (^)(NSData* data))modifyBlock {
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     
     // Add the jw token header.
-    [request setValue:self.accessToken forKey: self.accessTokenHeaderKey];
+    [request addValue:self.accessToken forHTTPHeaderField:self.accessTokenHeaderKey];
     
     __weak typeof(self) weakSelf = self;
     NSURLSessionDataTask *task = [NSURLSession.sharedSession dataTaskWithRequest:request
@@ -98,11 +98,7 @@ static NSString *const httpsScheme = @"https";
                                       NSHTTPURLResponse *response = (NSHTTPURLResponse*)urlREsponse;
                                       if (response.statusCode == 200 && data != nil) {
                                           // Modify the data if block was passed.
-                                          NSData *modifiedData;
-                                          
-                                          if (modifyBlock)
-                                              modifiedData = modifyBlock(data);
-                                          
+                                          NSData *modifiedData = modifyBlock ? modifyBlock(data) : data;
                                           if (!modifiedData) {
                                               [weakSelf reportErrorWithCode:RCTResponseErrorCodeBadRequest forRequest:loadingRequest];
                                               return;
