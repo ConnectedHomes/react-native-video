@@ -5,10 +5,14 @@ A `<Video>` component for react-native, as seen in
 
 Requires react-native >= 0.40.0, for RN support of 0.19.0 - 0.39.0 please use a pre 1.0 version.
 
+### Version 3.0 breaking changes
+Version 3.0 features a number of changes to existing behavior. See [Updating](#updating) for changes.
+
 ## TOC
 
 * [Installation](#installation)
 * [Usage](#usage)
+* [Updating](#updating)
 
 ## Installation
 
@@ -184,19 +188,13 @@ using System.Collections.Generic;
        ref={(ref) => {
          this.player = ref
        }}                                      // Store reference
-       playInBackground={true|false}           // Audio continues to play when app entering background. Default false
-       playWhenInactive={true|false}           // [iOS] Video continues to play when control or notification center are shown. Default false
        onBuffer={this.onBuffer}                // Callback when remote video is buffering
        onEnd={this.onEnd}                      // Callback when playback finishes
        onError={this.videoError}               // Callback when video cannot be loaded
        onFullscreenPlayerWillPresent={this.fullScreenPlayerWillPresent} // Callback before fullscreen starts
        onFullscreenPlayerDidPresent={this.fullScreenPlayerDidPresent}   // Callback after fullscreen started
        onFullscreenPlayerWillDismiss={this.fullScreenPlayerWillDismiss} // Callback before fullscreen stops
-       onFullscreenPlayerDidDismiss={this.fullScreenPlayerDidDissmiss}  // Callback after fullscreen stopped
-       onLoadStart={this.loadStart}            // Callback when video starts to load
-       onLoad={this.setDuration}               // Callback when video loads
-       onProgress={this.setTime}               // Callback every ~250ms with currentTime
-       onTimedMetadata={this.onTimedMetadata}  // Callback when the stream receive some metadata
+       onFullscreenPlayerDidDismiss={this.fullScreenPlayerDidDismiss}  // Callback after fullscreen stopped
        style={styles.backgroundVideo} />
 
 // Later to trigger fullscreen
@@ -221,9 +219,13 @@ var styles = StyleSheet.create({
 ```
 
 ### Configurable props
+* [allowsExternalPlayback](#allowsexternalplayback)
+* [audioOnly](#audioonly)
 * [ignoreSilentSwitch](#ignoresilentswitch)
 * [muted](#muted)
 * [paused](#paused)
+* [playInBackground](#playinbackground)
+* [playWhenInactive](#playwheninactive)
 * [poster](#poster)
 * [posterResizeMode](#posterresizemode)
 * [progressUpdateInterval](#progressupdateinterval)
@@ -231,7 +233,37 @@ var styles = StyleSheet.create({
 * [repeat](#repeat)
 * [resizeMode](#resizemode)
 * [selectedTextTrack](#selectedtexttrack)
+* [stereoPan](#stereopan)
+* [textTracks](#texttracks)
+* [useTextureView](#usetextureview)
 * [volume](#volume)
+
+### Event props
+* [onLoad](#onload)
+* [onLoadStart](#onloadstart)
+* [onProgress](#onprogress)
+* [onTimedMetadata](#ontimedmetadata)
+
+### Methods
+* [seek](#seek)
+
+### Configurable props
+
+#### allowsExternalPlayback
+Indicates whether the player allows switching to external playback mode such as AirPlay or HDMI.
+* **true (default)** - allow switching to external playback mode
+* **false** -  Don't allow switching to external playback mode
+
+Platforms: iOS
+
+#### audioOnly
+Indicates whether the player should only play the audio track and instead of displaying the video track, show the poster instead.
+* **false (default)** - Display the video as normal
+* **true** - Show the poster and play the audio
+
+For this to work, the poster prop must be set.
+
+Platforms: all
 
 #### ignoreSilentSwitch
 Controls the iOS silent switch behavior
@@ -255,6 +287,24 @@ Controls whether the media is paused
 
 Platforms: all
 
+#### playInBackground
+Determine whether the media should continue playing while the app is in the background. This allows customers to continue listening to the audio.
+* **false (default)** - Don't continue playing the media
+* **true** - Continue playing the media
+
+To use this feature on iOS, you must:
+* [Enable Background Audio](https://developer.apple.com/library/archive/documentation/Audio/Conceptual/AudioSessionProgrammingGuide/AudioSessionBasics/AudioSessionBasics.html#//apple_ref/doc/uid/TP40007875-CH3-SW3) in your Xcode project
+* Set the ignoreSilentSwitch prop to "ignore"
+
+Platforms: Android ExoPlayer, Android MediaPlayer, iOS
+
+#### playWhenInactive
+Determine whether the media should continue playing when notifications or the Control Center are in front of the video.
+* **false (default)** - Don't continue playing the media
+* **true** - Continue playing the media
+
+Platforms: iOS
+
 #### poster
 An image to display while the video is loading
 <br>Value: string with a URL for the poster, e.g. "https://baconmockup.com/300/200/"
@@ -275,11 +325,11 @@ Platforms: all
 #### progressUpdateInterval
 Delay in milliseconds between onProgress events in milliseconds.
 
-Default: 250.0.
+Default: 250.0
 
 Platforms: all
 
-#### rate
+### rate
 Speed at which the media should play. 
 * **0.0** - Pauses the video
 * **1.0** - Play at normal speed
@@ -331,11 +381,65 @@ Type | Value | Description
 "language" | string | Display the text track with the language specified as the Value, e.g. "fr"
 "index" | number | Display the text track with the index specified as the value, e.g. 0
 
-Both iOS & Android offer Settings to enable Captions for hearing impaired people. If "system" is selected and the Captions Setting is enabled, iOS/Android will look for a caption that matches that customer's language and display it.
+Both iOS & Android (only 4.4 and higher) offer Settings to enable Captions for hearing impaired people. If "system" is selected and the Captions Setting is enabled, iOS/Android will look for a caption that matches that customer's language and display it. 
 
 If a track matching the specified Type (and Value if appropriate) is unavailable, no text track will be displayed. If multiple tracks match the criteria, the first match will be used.
 
 Platforms: Android ExoPlayer, iOS
+
+#### stereoPan
+Adjust the balance of the left and right audio channels.  Any value between –1.0 and 1.0 is accepted.
+* **-1.0** - Full left
+* **0.0 (default)** - Center
+* **1.0** - Full right
+
+Platforms: Android MediaPlayer
+
+#### textTracks
+Load one or more "sidecar" text tracks. This takes an array of objects representing each track. Each object should have the format:
+
+Property | Description
+--- | ---
+title | Descriptive name for the track
+language | 2 letter [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) representing the language
+type | Mime type of the track<br> * TextTrackType.SRT - .srt SubRip Subtitle<br> * TextTrackType.TTML - .ttml TTML<br> * TextTrackType.VTT - .vtt WebVTT
+uri | URL for the text track. Currently, only tracks hosted on a webserver are supported
+
+Example:
+```
+import { TextTrackType }, Video from 'react-native-video';
+
+textTracks={[
+  {
+    title: "English CC",
+    language: "en",
+    type: "text/vtt", TextTrackType.VTT,
+    uri: "https://bitdash-a.akamaihd.net/content/sintel/subtitles/subtitles_en.vtt"
+  },
+  {
+    title: "Spanish Subtitles",
+    language: "es",
+    type: "application/x-subrip", TextTrackType.SRT,
+    uri: "https://durian.blender.org/wp-content/content/subtitles/sintel_es.srt"
+  }
+]}
+```
+
+This isn't support on iOS because AVPlayer doesn't support it. Text tracks must be loaded as part of an HLS playlist.
+
+Platforms: Android ExoPlayer
+
+#### useTextureView
+Output to a TextureView instead of the default SurfaceView. In general, you will want to use SurfaceView because it is more efficient and provides better performance. However, SurfaceViews has two limitations:
+* It can't be animated, transformed or scaled
+* You can't overlay multiple SurfaceViews
+
+useTextureView can only be set at same time you're setting the source.
+
+* **false (default)** - Use a SurfaceView
+* **true** - Use a TextureView
+
+Platforms: Android ExoPlayer
 
 #### volume
 Adjust the volume.
@@ -344,6 +448,147 @@ Adjust the volume.
 * **Other values** - Reduce volume
 
 Platforms: all
+
+### Event props
+
+#### onLoad
+Callback function that is called when the media is loaded and ready to play.
+
+Payload:
+
+Property | Type | Description
+--- | --- | ---
+currentPosition | number | Time in seconds where the media will start
+duration | number | Length of the media in seconds
+naturalSize | object | Properties:<br> * width - Width in pixels that the video was encoded at<br> * height - Height in pixels that the video was encoded at<br> * orientation - "portrait" or "landscape"
+textTracks | array | An array of text track info objects with the following properties:<br> * index - Index number<br> * title - Description of the track<br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) language code<br> * type - Mime type of track
+
+Example:
+```
+{ 
+  canPlaySlowForward: true,
+  canPlayReverse: false,
+  canPlaySlowReverse: false,
+  canPlayFastForward: false,
+  canStepForward: false,
+  canStepBackward: false,
+  currentTime: 0,
+  duration: 5910.208984375,
+  naturalSize: {
+     height: 1080
+     orientation: 'landscape'
+     width: '1920'
+  },
+  textTracks: [
+    { title: '#1 French', language: 'fr', index: 0, type: 'text/vtt' },
+    { title: '#2 English CC', language: 'en', index: 1, type: 'text/vtt' },
+    { title: '#3 English Director Commentary', language: 'en', index: 2, type: 'text/vtt' }
+  ]
+}
+```
+
+Platforms: all
+
+#### onLoadStart
+Callback function that is called when the media starts loading.
+
+Payload:
+
+Property | Description
+--- | ---
+isNetwork | boolean | Boolean indicating if the media is being loaded from the network
+type | string | Type of the media. Not available on Windows
+uri | string | URI for the media source. Not available on Windows
+
+Example:
+```
+{
+  isNetwork: true,
+  type: '',
+  uri: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8'
+}
+```
+
+Platforms: all
+
+#### onProgress
+Callback function that is called every progressInterval seconds with info about which position the media is currently playing.
+
+Property | Description
+--- | ---
+currentTime | number | Current position in seconds
+playableDuration | number | Position to where the media can be played to using just the buffer in seconds
+seekableDuration | number | Position to where the media can be seeked to in seconds. Typically, the total length of the media
+
+Example:
+```
+{
+  currentTime: 5.2,
+  playableDuration: 34.6,
+  seekableDuration: 888
+}
+```
+
+#### onTimedMetadata
+Callback function that is called when timed metadata becomes available
+
+Payload:
+
+Property | Type | Description
+--- | --- | ---
+metadata | array | Array of metadata objects
+
+Example:
+```
+{
+  metadata: [
+    { value: 'Streaming Encoder', identifier: 'TRSN' },
+    { value: 'Internet Stream', identifier: 'TRSO' },
+    { value: 'Any Time You Like', identifier: 'TIT2' }
+  ]
+}
+```
+
+Platforms: Android ExoPlayer, iOS
+
+### Methods
+Methods operate on a ref to the Video element. You can create a ref using code like:
+```
+return (
+  <Video source={...}
+    ref => (this.player = ref) />
+);
+```
+
+#### seek()
+`seek(seconds)`
+
+Seek to the specified position represented by seconds. seconds is a float value.
+
+`seek()` can only be called after the `onLoad` event has fired.
+
+Example:
+```
+this.player.seek(200); // Seek to 3 minutes, 20 seconds
+```
+
+Platforms: all
+
+##### Exact seek
+
+By default iOS seeks within 100 milliseconds of the target position. If you need more accuracy, you can use the seek with tolerance method:
+
+`seek(seconds, tolerance)`
+
+tolerance is the max distance in milliseconds from the seconds position that's allowed. Using a more exact tolerance can cause seeks to take longer. If you want to seek exactly, set tolerance to 0.
+
+Example:
+```
+this.player.seek(120, 50); // Seek to 2 minutes with +/- 50 milliseconds accuracy
+```
+
+Platforms: iOS
+
 
 ### Additional props
 
@@ -357,14 +602,19 @@ For more detailed info check this [article](https://cocoacasts.com/how-to-add-ap
 </details>
 
 ### Android Expansion File Usage
-Within your render function, assuming you have a file called
-"background.mp4" in your expansion file. Just add your main and (if applicable) patch version
+Expansions files allow you to ship assets that exceed the 100MB apk size limit and don't need to be updated each time you push an app update.
+
+This only supports mp4 files and they must not be compressed. Example command line for preventing compression:
+```bash
+zip -r -n .mp4 *.mp4 player.video.example.com
 ```
-<Video
-  source={{uri: "background", mainVer: 1, patchVer: 0}}
-/>
-```
-This will look for an .mp4 file (background.mp4) in the given expansion version.
+
+```javascript
+// Within your render function, assuming you have a file called
+// "background.mp4" in your expansion file. Just add your main and (if applicable) patch version
+<Video source={{uri: "background", mainVer: 1, patchVer: 0}} // Looks for .mp4 file (background.mp4) in the given expansion version.
+       resizeMode="cover"           // Fill the whole screen at aspect ratio.
+       style={styles.backgroundVideo} />
 
 ### Load files with the RN Asset System
 
@@ -397,9 +647,47 @@ To enable audio to play in background on iOS the audio session needs to be set t
 
 - [Lumpen Radio](https://github.com/jhabdas/lumpen-radio) contains another example integration using local files and full screen background video.
 
+## Updating
+
+### Version 3.0
+
+#### All platforms now auto-play
+Previously, on Android ExoPlayer if the paused prop was not set, the media would not automatically start playing. The only way it would work was if you set `paused={false}`. This has been changed to automatically play if paused is not set so that the behavior is consistent across platforms.
+
+#### All platforms now keep their paused state when returning from the background
+Previously, on Android MediaPlayer if you setup an AppState event when the app went into the background and set a paused prop so that when you returned to the app the video would be paused it would be ignored.
+
+Note, Windows does not have a concept of an app going into the background, so this doesn't apply there.
+
+#### Use Android SDK 27 by default
+Version 3.0 updates the Android build tools and SDK to version 27. React Native is in the process of [switchting over](https://github.com/facebook/react-native/issues/18095#issuecomment-395596130) to SDK 27 in preparation for Google's requirement that new Android apps [use SDK 26](https://android-developers.googleblog.com/2017/12/improving-app-security-and-performance.html) by August 2018.
+
+You will either need to install the version 27 SDK and version 27.0.3 buildtools or modify your build.gradle file to configure react-native-video to use the same build settings as the rest of your app as described below.
+
+##### Using app build settings
+You will need to create a `project.ext` section in the top-level build.gradle file (not app/build.gradle). Fill in the values from the example below using the values found in your app/build.gradle file.
+```
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ... // Various other settings go here
+}
+
+allprojects {
+    ... // Various other settings go here
+
+    project.ext {
+        compileSdkVersion = 23
+        buildToolsVersion = "23.0.1"
+
+        minSdkVersion = 16
+        targetSdkVersion = 22
+    }
+}
+```
+
 ## TODOS
 
-- [ ] Add support for captions
 - [ ] Add support for playing multiple videos in a sequence (will interfere with current `repeat` implementation)
 - [x] Callback to get buffering progress for remote videos
 - [ ] Bring API closer to HTML5 `<Video>` [reference](http://devdocs.io/html/element/video)
