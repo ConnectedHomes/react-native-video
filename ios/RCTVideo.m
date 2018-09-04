@@ -74,7 +74,6 @@ static NSString *const timedMetadata = @"timedMetadata";
     _allowsExternalPlayback = YES;
     _playWhenInactive = false;
     _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
-    assetResourceLoaderDelegate = [RCTAssetResourceLoaderDelegate new];
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(applicationWillResignActive:)
@@ -286,6 +285,7 @@ static NSString *const timedMetadata = @"timedMetadata";
   [self removePlayerLayer];
   [self removePlayerTimeObserver];
   [self removePlayerItemObservers];
+  assetResourceLoaderDelegate = [RCTAssetResourceLoaderDelegate new];
   _playerItem = [self playerItemForSource:source];
   [self addPlayerItemObservers];
 
@@ -351,6 +351,13 @@ static NSString *const timedMetadata = @"timedMetadata";
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
+  if (assetResourceLoaderDelegate.error && self.onVideoError) {
+      self.onVideoError(@{@"error": @{@"code": @(assetResourceLoaderDelegate.error.code),
+                                      @"domain": assetResourceLoaderDelegate.error.domain},
+                          @"target": self.reactTag});
+      return;
+  }
+    
   if (object == _playerItem) {
     // When timeMetadata is read the event onTimedMetadata is triggered
     if ([keyPath isEqualToString:timedMetadata]) {

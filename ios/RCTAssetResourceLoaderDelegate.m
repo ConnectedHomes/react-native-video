@@ -42,7 +42,6 @@ static NSString *const httpsScheme = @"https";
 #pragma mark - AVAssetResourceLoaderDelegate
 
 - (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest {
-    
     NSString* scheme = loadingRequest.request.URL.scheme;
     if ([self isMasterPlaylistSchemeValid:scheme]) {
         [self handleMasterPlaylistRequest:loadingRequest];
@@ -70,12 +69,10 @@ static NSString *const httpsScheme = @"https";
 #pragma mark - Working with Data
 
 -(void)reportErrorWithCode:(RCTResponseErrorCode)errorCode forRequest:(AVAssetResourceLoadingRequest*)loadingRequest {
-    self.errorCode = errorCode;
-    
-    NSError* responseError = [NSError errorWithDomain:NSURLErrorDomain
-                                                 code:errorCode
-                                             userInfo:nil];
-    [loadingRequest finishLoadingWithError:responseError];
+    _error = [NSError errorWithDomain:NSURLErrorDomain
+                                 code:errorCode
+                             userInfo:nil];
+    [loadingRequest finishLoadingWithError:_error];
 }
 
 -(NSURL*)changeSchemeOf:(AVAssetResourceLoadingRequest*)loadingRequest from:(NSString*)from to:(NSString*)to {

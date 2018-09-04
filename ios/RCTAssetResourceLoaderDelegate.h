@@ -31,4 +31,5 @@
 @interface RCTAssetResourceLoaderDelegate : NSObject <AVAssetResourceLoaderDelegate>
 @property (strong, nonatomic) NSDictionary *headers;
 @property (readonly, nonatomic) dispatch_queue_t delegateQueue;
+@property (readonly, nonatomic) NSError *error;
 @end
