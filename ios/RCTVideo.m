@@ -584,6 +584,24 @@ static int const RCTVideoUnset = -1;
                                            selector:@selector(playbackStalled:)
                                                name:AVPlayerItemPlaybackStalledNotification
                                              object:nil];
+  
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:AVPlayerItemFailedToPlayToEndTimeNotification
+                                                object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(playbackFailedToPlayToEnd:)
+                                               name:AVPlayerItemFailedToPlayToEndTimeNotification
+                                             object:nil];
+}
+
+- (void)playbackFailedToPlayToEnd:(NSNotification *)notification
+{
+  NSError *error = notification.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
+  if (self.onVideoError && error) {
+    self.onVideoError(@{@"error": @{@"code": @(error.code),
+                                    @"domain": error.domain},
+                        @"target": self.reactTag});
+  }
 }
 
 - (void)playbackStalled:(NSNotification *)notification
