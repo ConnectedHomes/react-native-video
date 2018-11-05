@@ -235,6 +235,7 @@ export default class Video extends Component {
       onVideoEnd: this._onEnd,
       onVideoBuffer: this._onBuffer,
       onTimedMetadata: this._onTimedMetadata,
+      onVideoAudioBecomingNoisy: this._onAudioBecomingNoisy,
       onVideoFullscreenPlayerWillPresent: this._onFullscreenPlayerWillPresent,
       onVideoFullscreenPlayerDidPresent: this._onFullscreenPlayerDidPresent,
       onVideoFullscreenPlayerWillDismiss: this._onFullscreenPlayerWillDismiss,
@@ -296,6 +297,7 @@ Video.propTypes = {
   onVideoSeek: PropTypes.func,
   onVideoEnd: PropTypes.func,
   onTimedMetadata: PropTypes.func,
+  onVideoAudioBecomingNoisy: PropTypes.func,
   onVideoFullscreenPlayerWillPresent: PropTypes.func,
   onVideoFullscreenPlayerDidPresent: PropTypes.func,
   onVideoFullscreenPlayerWillDismiss: PropTypes.func,
@@ -314,6 +316,13 @@ Video.propTypes = {
   posterResizeMode: Image.propTypes.resizeMode,
   repeat: PropTypes.bool,
   allowsExternalPlayback: PropTypes.bool,
+  selectedAudioTrack: PropTypes.shape({
+    type: PropTypes.string.isRequired,
+    value: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ])
+  }),
   selectedTextTrack: PropTypes.shape({
     type: PropTypes.string.isRequired,
     value: PropTypes.oneOfType([
@@ -336,6 +345,12 @@ Video.propTypes = {
   paused: PropTypes.bool,
   muted: PropTypes.bool,
   volume: PropTypes.number,
+  bufferConfig: PropTypes.shape({
+    minBufferMs: PropTypes.number,
+    maxBufferMs: PropTypes.number,
+    bufferForPlaybackMs: PropTypes.number,
+    bufferForPlaybackAfterRebufferMs: PropTypes.number,
+  }),
   stereoPan: PropTypes.number,
   rate: PropTypes.number,
   playInBackground: PropTypes.bool,
