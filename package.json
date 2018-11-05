@@ -1,6 +1,6 @@
 {
     "name": "react-native-video",
-    "version": "3.2.1",
+    "version": "3.2.2",
     "description": "A <Video /> element for react-native",
     "main": "Video.js",
     "license": "MIT",
@@ -21,7 +21,12 @@
         {
             "name": "Hampton Maxwell",
             "email": "me@hamptonmaxwell.com"
+        },
+        {
+            "name": "Kamil Badyla",
+            "email": "kamil.badyla@hivehome.com"
         }
+
     ],
     "repository": {
         "type": "git",
