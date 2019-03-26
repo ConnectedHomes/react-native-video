@@ -13,15 +13,29 @@ android {
         targetSdkVersion safeExtGet('targetSdkVersion', 27)
         versionCode 1
         versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
     }
 }
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url "https://maven.google.com"
+    }
+}
+
 
 dependencies {
     //noinspection GradleDynamicVersion
     provided "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
-    compile 'com.google.android.exoplayer:exoplayer:2.7.3'
-    compile('com.google.android.exoplayer:extension-okhttp:2.7.3') {
+    implementation 'com.google.android.exoplayer:exoplayer:2.7.3'
+    implementation('com.google.android.exoplayer:extension-okhttp:2.7.3') {
         exclude group: 'com.squareup.okhttp3', module: 'okhttp'
     }
-    compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    implementation 'com.android.support:support-annotations:26.1.0'
+    implementation 'com.android.support:support-annotations:28.0.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
 }
